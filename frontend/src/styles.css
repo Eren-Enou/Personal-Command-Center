@@ -1,0 +1,306 @@
+@import url("./layout.css");
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+  color: #e0e6e1;
+  background: #151918;
+  font-synthesis: none;
+  color-scheme: dark;
+  font-size: 14px;
+  line-height: 1.5;
+}
+* {
+  box-sizing: border-box;
+}
+body {
+  margin: 0;
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+a {
+  color: #b9d8be;
+  text-decoration: none;
+}
+a:hover {
+  color: #e0f6e3;
+}
+button {
+  background: #bad7a6;
+  border: 1px solid #bad7a6;
+  border-radius: 6px;
+  color: #182117;
+  cursor: pointer;
+  padding: 8px 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+button:hover {
+  filter: brightness(1.08);
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+button.quiet {
+  background: transparent;
+  border-color: #414b43;
+  color: #d6dfd5;
+}
+button.danger {
+  color: #ffd0ca;
+  background: #642f2a;
+  border-color: #814139;
+}
+button.danger.quiet {
+  background: transparent;
+  color: #e3a49c;
+}
+input,
+select,
+textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #414b43;
+  background: #1a201d;
+  color: #e8eee8;
+  border-radius: 6px;
+  padding: 9px 11px;
+  min-width: 0;
+}
+textarea {
+  resize: vertical;
+  line-height: 1.6;
+}
+input::placeholder {
+  color: #8c988e;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 2px solid #bad7a6;
+  outline-offset: 1px;
+}
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #bad7a6;
+  outline-offset: 3px;
+}
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+h1 {
+  font-size: 28px;
+  letter-spacing: -0.8px;
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+h2 {
+  font-size: 16px;
+  font-weight: 600;
+}
+p {
+  color: #a5b1a8;
+}
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 500;
+}
+label input,
+label select,
+label textarea {
+  margin-top: 6px;
+}
+.hint,
+.eyebrow,
+.entry-meta,
+kbd {
+  font-size: 11px;
+  color: #a2ada3;
+}
+.eyebrow {
+  font-weight: 600;
+  letter-spacing: 1.4px;
+  margin-bottom: 10px;
+}
+.error {
+  padding: 10px;
+  border: 1px solid #b56e61;
+  color: #ffd0ca;
+  background: #34241f;
+  border-radius: 5px;
+  overflow-wrap: anywhere;
+}
+.empty {
+  color: #98a59b;
+  padding: 25px 10px;
+  border-top: 1px solid #303a32;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 22px;
+}
+.tags {
+  display: flex;
+  gap: 7px;
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+}
+.tag {
+  background: #29382d;
+  color: #b6cdb2;
+  font-size: 11px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.badge {
+  font-size: 10px;
+  color: #b5c4b4;
+  border: 1px solid #435344;
+  padding: 1px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.back {
+  display: inline-block;
+  margin-bottom: 20px;
+}
+.details {
+  margin: 28px 0;
+}
+.details > div {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  border-top: 1px solid #313c33;
+  padding: 16px 0;
+}
+.details dt {
+  color: #8c9b8e;
+}
+.details dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.settings-section {
+  padding: 22px 0;
+  border-bottom: 1px solid #354036;
+  max-width: 760px;
+}
+.settings-section label {
+  margin-bottom: 16px;
+}
+.db-path {
+  display: block;
+  background: #202822;
+  padding: 12px;
+  overflow-wrap: anywhere;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: 10px;
+  padding: 10px;
+  background: #202822;
+  z-index: 10;
+}
+.skip-link:focus {
+  top: 10px;
+}
+dialog {
+  background: #1b231e;
+  color: #e4ece4;
+  border: 1px solid #59664f;
+  border-radius: 10px;
+  width: min(620px, calc(100vw - 32px));
+  max-height: 90vh;
+  padding: 24px;
+  box-shadow: 0 20px 80px #0008;
+}
+dialog::backdrop {
+  background: #0009;
+}
+.modal-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.modal-heading h2 {
+  margin: 0;
+  font-size: 20px;
+}
+.editor {
+  display: grid;
+  gap: 16px;
+}
+.editor .actions {
+  margin-top: 4px;
+}
+.check {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  white-space: nowrap;
+}
+.check input {
+  width: auto;
+  margin: 0;
+}
+.match-field {
+  font-size: 11px;
+  color: #b9d8be;
+  text-transform: uppercase;
+  margin-right: 8px;
+}
+.search-results {
+  list-style: none;
+  padding: 0;
+}
+.search-results li {
+  border-top: 1px solid #354036;
+  padding: 18px 0;
+}
+.search-results a {
+  display: block;
+}
+.search-results h2 {
+  color: #e1e9de;
+  margin: 6px 0;
+}
+.search-results p {
+  margin: 4px 0;
+  overflow-wrap: anywhere;
+}
+.search-results .eyebrow {
+  font-size: 10px;
+}

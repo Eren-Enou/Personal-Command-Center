@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+*.pyc
+backend/data/
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.env
+.browsers/
+*.tsbuildinfo
+*.db
