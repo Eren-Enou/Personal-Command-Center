@@ -59,7 +59,12 @@ export interface Activity {
 }
 export interface SearchResult {
   id: string;
-  kind: Kind;
+  kind: Kind | "topics" | "context_notes";
+  parent_type?: Kind | null;
+  parent_id?: string | null;
+  parent_title?: string | null;
+  topic_names?: string[];
+  note_count?: number | null;
   title: string;
   matches: Record<string, string>;
   archived?: boolean | null;

@@ -12,6 +12,9 @@ import {
   type Kind,
 } from "./domains";
 import { Empty, EntryList, ErrorMessage, Modal } from "./components";
+import { DeepContext } from "./DeepContext";
+import { contextParents } from "./deep-context";
+import { RecordActivity } from "./RecordActivity";
 import { Editor } from "./Editor";
 
 function ConvertForm({
@@ -280,7 +283,9 @@ function RecordDetail({ kind, id }: { kind: Kind; id: string }) {
           {entry.archived ? "Archived" : "Unclassified · ready when you are"}
         </p>
       )}
+      {contextParents.includes(kind) && <DeepContext kind={kind} id={id} />}
       <RelatedNotes kind={kind} id={id} />
+      <RecordActivity kind={kind} id={id} />
       <div className="actions">
         {kind === "inbox" && (
           <>
@@ -323,7 +328,8 @@ function RecordDetail({ kind, id }: { kind: Kind; id: string }) {
         <Modal title="Delete this item?" onClose={() => setDeleting(false)}>
           <p>
             This permanently deletes the item. Related notes will remain and be
-            detached. Activity history will remain.
+            detached. Topics and Context Notes inside this record will be
+            deleted. Activity history will remain.
           </p>
           <ErrorMessage error={remove.error} />
           <div className="actions">

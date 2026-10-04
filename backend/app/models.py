@@ -1,7 +1,17 @@
 from datetime import datetime, timezone
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Column, ForeignKey, Integer, String, Table, Text
+from sqlalchemy import (
+    Boolean,
+    Column,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    Table,
+    Text,
+    UniqueConstraint,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .db import Base
@@ -178,3 +188,44 @@ RECORD_MODELS: dict[
     "inbox": InboxEntry,
     "utilities": Utility,
 }
+
+
+class Topic(RecordColumns, Base):
+    __tablename__ = "topics"
+    __table_args__ = (
+        UniqueConstraint(
+            "parent_type", "parent_id", "normalized_name", name="uq_topic_parent_name"
+        ),
+    )
+    parent_type: Mapped[str] = mapped_column(String)
+    parent_id: Mapped[str] = mapped_column(String(36))
+    name: Mapped[str] = mapped_column(String(160))
+    normalized_name: Mapped[str] = mapped_column(String(160))
+    description: Mapped[str] = mapped_column(Text, default="")
+
+
+context_note_topics = Table(
+    "context_note_topics",
+    Base.metadata,
+    Column("note_id", ForeignKey("context_notes.id", ondelete="CASCADE"), primary_key=True),
+    Column("topic_id", ForeignKey("topics.id", ondelete="CASCADE"), primary_key=True),
+    Index("ix_context_note_topics_topic", "topic_id"),
+)
+context_note_tags = Table(
+    "context_note_tags",
+    Base.metadata,
+    Column("note_id", ForeignKey("context_notes.id", ondelete="CASCADE"), primary_key=True),
+    Column("tag_id", ForeignKey("tags.id", ondelete="CASCADE"), primary_key=True),
+)
+
+
+class ContextNote(RecordColumns, Base):
+    __tablename__ = "context_notes"
+    __table_args__ = (
+        Index("ix_context_notes_parent_created", "parent_type", "parent_id", "created_at", "id"),
+    )
+    parent_type: Mapped[str] = mapped_column(String)
+    parent_id: Mapped[str] = mapped_column(String(36))
+    body: Mapped[str] = mapped_column(Text)
+    topics: Mapped[list[Topic]] = relationship(secondary=context_note_topics, lazy="selectin")
+    tags: Mapped[list[Tag]] = relationship(secondary=context_note_tags, lazy="selectin")

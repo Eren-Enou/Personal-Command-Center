@@ -56,8 +56,8 @@ export function SettingsPage() {
             <p>Personal Command Center · v{info.data.version}</p>
             <code className="db-path">{info.data.database}</code>
             <p>
-              {Object.values(info.data.counts).reduce((a, b) => a + b, 0)}{" "}
-              records across your workspace
+              {Object.values(info.data.counts).reduce((a, b) => a + b, 0)} items
+              in your main sections
             </p>
           </>
         )}
@@ -65,8 +65,8 @@ export function SettingsPage() {
       <section className="settings-section">
         <h2>Export a backup</h2>
         <p>
-          Download all records, tags, relations, timestamps, and activity as
-          versioned JSON.
+          Download all records, Topics, Context Notes, tags, relations,
+          timestamps, and activity as versioned JSON.
         </p>
         <button disabled={exporting} onClick={() => void exportBackup()}>
           {exporting ? "Exporting…" : "Export all data"}
@@ -76,9 +76,9 @@ export function SettingsPage() {
       <section className="settings-section">
         <h2>Import a backup</h2>
         <p>
-          Imports add records. Existing record or activity IDs cause the entire
-          import to be rejected. Matching tag names are merged. Nothing is
-          overwritten.
+          Imports add records and their context. Existing record, Topic, Context
+          Note, or activity IDs cause the entire import to be rejected. Matching
+          tag names are merged. Nothing is overwritten.
         </p>
         <label>
           JSON backup

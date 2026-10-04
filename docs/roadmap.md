@@ -1,12 +1,16 @@
 # Roadmap
 
-## NOW — Delivered foundation and context recovery
+## NOW — Delivered foundation, context recovery and Deep Context
 
 Local SQLite storage, explicit migrations, seven domain sections, capture and conversion, tags, optional note references, cross-domain search, recent activity, JSON backup/restore, keyboard shortcuts, tests, and plain CSS desktop/mobile layouts. Milestone 2 adds reverse related notes, named references, conversion provenance, current-media summaries, linked compact activity, optional capture tagging, explicit Inbox modes, filter clearing, highlighted/domain-filtered search, and focus/responsive fixes.
 
-## NEXT — Make daily use smoother
+Milestone 3 adds shallow local Topics and title-free Context Notes to Projects, Games, Media, Ideas and Utilities. Observations support zero/multiple Topics and optional shared Tags, inline capture, chronology, editing and deletion. Search opens a selected Topic or focused observation. Formal Notes remain separate. Version 3 backup includes all context and memberships; versions 1/2 remain importable.
+
+## NEXT — Evaluate Context Resume from accumulated knowledge
 
 - Use the refined workspace daily and evaluate whether context is recovered faster.
+- Candidate Milestone 4: a compact, deliberate resume surface combining the existing current state/next step with recent observations and a chosen local Topic. Validate this against all four demonstration domains before adding new stored fields. Avoid generated summaries: Context Notes supply raw evidence and formal Notes carry substantial analysis.
+- Measure how often long context streams bury formal documents or useful observations. Consider a small recent-context preview or pinned resume choice before pagination or domain-specific models.
 - Add automated local backups with restore verification and retention controls.
 - Benchmark search and long lists; add pagination/FTS5 only when justified.
 - Consider status filters and tag suggestions/management only where daily use shows a need.

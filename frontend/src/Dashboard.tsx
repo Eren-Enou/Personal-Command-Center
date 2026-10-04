@@ -118,7 +118,7 @@ export function Dashboard() {
                     {humanize(domains[event.kind].singular).replace(/^./, (c) =>
                       c.toUpperCase(),
                     )}{" "}
-                    {event.action}
+                    {humanize(event.action)}
                   </span>
                 </div>
                 <time>{formatDate(event.created_at)}</time>

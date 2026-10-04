@@ -7,6 +7,7 @@ Build a private, offline, single-user workspace for capture and retrieval. Prese
 - Keep all work in this standalone project directory. Do not inspect or depend on other repositories.
 - Validate important persistence and transfer behavior with pytest, user flows with Testing Library, and run lint, typecheck, build, and clean migrations before reporting completion.
 - Changes to models require a migration. Imports must be validated and atomic. Preserve timestamps, relations, tags, and activity in backups.
+- Deep Context uses shallow, parent-owned Topics and title-free Context Notes for Projects/Games/Media/Ideas/Utilities. Keep formal Notes and shared Tags separate. Validate typed parent pairs and same-parent Topic associations in services/imports; parent deletion cleans local context, while Topic deletion preserves observations. Do not add nested Topics or domain-specific chapter/character/build tables.
 - No accounts, remote databases, AI infrastructure, generic entity framework, speculative plugins, or event sourcing. Prefer small, direct modules and existing abstractions.
 - Keep docs and command examples accurate. Report actual validation results and limitations.
 - At the end of each substantive work session, create a new report in `docs/reports/sessions/` and add it to `docs/reports/README.md`. Use `YYYY-MM-DD_NNN_short-description.md`, with the user's local date and the next unused three-digit sequence for that date. Never overwrite an earlier session report.

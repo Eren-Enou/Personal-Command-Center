@@ -162,7 +162,19 @@ class ActivityOut(Metadata):
     kind: Kind
     record_id: UUID
     action: Literal[
-        "created", "updated", "deleted", "captured", "archived", "restored", "converted"
+        "created",
+        "updated",
+        "deleted",
+        "captured",
+        "archived",
+        "restored",
+        "converted",
+        "topic_created",
+        "topic_updated",
+        "topic_deleted",
+        "context_note_added",
+        "context_note_updated",
+        "context_note_deleted",
     ]
     title: str
 
@@ -170,20 +182,6 @@ class ActivityOut(Metadata):
 class TagOut(BaseModel):
     id: UUID
     name: TagName
-
-
-class Backup(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    schema_version: Literal[1, 2]
-    projects: list[ProjectOut]
-    games: list[GameOut]
-    media: list[MediaItemOut]
-    ideas: list[IdeaOut]
-    notes: list[NoteOut]
-    inbox: list[InboxEntryOut]
-    utilities: list[UtilityOut]
-    tags: list[TagOut]
-    activity: list[ActivityOut]
 
 
 class Conversion(BaseModel):
@@ -202,10 +200,15 @@ class ActivityView(ActivityOut):
 
 
 class SearchResult(BaseModel):
-    kind: Kind
+    kind: Kind | Literal["topics", "context_notes"]
     id: UUID
     title: str
     matches: dict[str, str]
+    parent_type: Kind | None = None
+    parent_id: UUID | None = None
+    parent_title: str | None = None
+    topic_names: list[str] = Field(default_factory=list)
+    note_count: int | None = None
     archived: bool | None = None
     converted: bool = False
     converted_type: Kind | None = None
@@ -296,3 +299,84 @@ class UtilityPatch(BaseModel):
     utility_type: str | None = None
     content: str | None = None
     notes: str | None = None
+
+
+ParentKind = Literal["projects", "games", "media", "ideas", "utilities"]
+
+
+class TopicInput(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: Annotated[str, Field(min_length=1, max_length=160)]
+    description: str = ""
+
+    @field_validator("name")
+    @classmethod
+    def display_name(cls, value: str) -> str:
+        value = " ".join(value.split())
+        if not value:
+            raise ValueError("Topic name cannot be blank")
+        return value
+
+
+class TopicOut(TopicInput, Metadata):
+    parent_type: ParentKind
+    parent_id: UUID
+
+
+class TopicView(TopicOut):
+    note_count: int
+
+
+class ContextNoteInput(InputModel):
+    body: Annotated[str, Field(min_length=1, max_length=100000)]
+    topic_ids: list[UUID] = Field(default_factory=list, max_length=100)
+
+    @field_validator("body")
+    @classmethod
+    def nonblank_body(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("Note body cannot be blank")
+        return value
+
+    @field_validator("topic_ids")
+    @classmethod
+    def unique_topics(cls, value: list[UUID]) -> list[UUID]:
+        if len(set(value)) != len(value):
+            raise ValueError("Duplicate topic associations")
+        return value
+
+
+class ContextNoteOut(ContextNoteInput, Metadata):
+    parent_type: ParentKind
+    parent_id: UUID
+
+
+class ContextSpace(BaseModel):
+    topics: list[TopicView]
+    context_notes: list[ContextNoteOut]
+
+
+class Backup(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    schema_version: Literal[1, 2, 3]
+    projects: list[ProjectOut]
+    games: list[GameOut]
+    media: list[MediaItemOut]
+    ideas: list[IdeaOut]
+    notes: list[NoteOut]
+    inbox: list[InboxEntryOut]
+    utilities: list[UtilityOut]
+    tags: list[TagOut]
+    activity: list[ActivityOut]
+    topics: list[TopicOut] = Field(default_factory=list)
+    context_notes: list[ContextNoteOut] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def context_version(self) -> "Backup":
+        if self.schema_version == 3 and not {"topics", "context_notes"}.issubset(
+            self.model_fields_set
+        ):
+            raise ValueError("Version 3 requires Topics and Context Notes collections")
+        if self.schema_version < 3 and (self.topics or self.context_notes):
+            raise ValueError("Deep Context requires backup version 3")
+        return self

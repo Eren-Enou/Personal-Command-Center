@@ -8,6 +8,7 @@ from sqlalchemy.exc import IntegrityError
 
 from . import models as m
 from . import schemas as s
+from .context_routes import router as context_router
 from .records import convert_inbox, serialize
 from .routes import DB, router
 from .search import search
@@ -15,6 +16,7 @@ from .transfer import export_data, import_data
 
 app = FastAPI(title="Personal Command Center", version="0.1.0")
 app.include_router(router)
+app.include_router(context_router)
 
 
 @app.exception_handler(ValidationError)
@@ -50,8 +52,18 @@ def tags(db: DB) -> list[m.Tag]:
 
 
 @app.get("/api/activity", response_model=list[s.ActivityView])
-def activity(db: DB, limit: int = Query(default=30, ge=1, le=200)) -> list[s.ActivityView]:
-    rows = db.scalars(select(m.Activity).order_by(m.Activity.created_at.desc()).limit(limit))
+def activity(
+    db: DB,
+    limit: int = Query(default=30, ge=1, le=200),
+    kind: s.Kind | None = None,
+    record_id: UUID | None = None,
+) -> list[s.ActivityView]:
+    query = select(m.Activity)
+    if kind:
+        query = query.where(m.Activity.kind == kind)
+    if record_id:
+        query = query.where(m.Activity.record_id == str(record_id))
+    rows = db.scalars(query.order_by(m.Activity.created_at.desc()).limit(limit))
     return [
         s.ActivityView.model_validate(
             {

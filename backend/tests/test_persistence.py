@@ -1,4 +1,5 @@
 from pathlib import Path
+from uuid import UUID
 
 from alembic import command
 from alembic.config import Config
@@ -7,8 +8,9 @@ from sqlalchemy import inspect
 from sqlalchemy.orm import Session
 
 from app import db
+from app.deep_context import save_note, save_topic
 from app.records import create_record
-from app.schemas import NoteInput, ProjectInput
+from app.schemas import ContextNoteInput, NoteInput, ProjectInput, TopicInput
 from app.transfer import export_data, import_data
 
 
@@ -36,6 +38,15 @@ def test_clean_migrations_and_full_restore_after_reopen(
                 }
             ),
         )
+        topic = save_topic(session, "projects", UUID(project.id), TopicInput(name="Architecture"))
+        save_note(
+            session,
+            "projects",
+            UUID(project.id),
+            ContextNoteInput(
+                body="\n    deep_context\n", topic_ids=[UUID(topic.id)], tags=["shared"]
+            ),
+        )
         session.commit()
         backup = export_data(session)
     first.dispose()
@@ -45,7 +56,7 @@ def test_clean_migrations_and_full_restore_after_reopen(
     monkeypatch.setattr(db, "engine", second)
     command.upgrade(config, "head")
     with Session(second) as session:
-        assert import_data(session, backup) == 2
+        assert import_data(session, backup) == 4
         session.commit()
     second.dispose()
     reopened = db.make_engine(f"sqlite:///{second_path.as_posix()}")

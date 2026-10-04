@@ -20,13 +20,14 @@ Add a link to each new report below. Preserve prior reports as a history of the 
 | --- | --- | --- |
 | 2026-10-04 | 001 | [Initial MVP and session reporting setup](sessions/2026-10-04_001_initial-mvp.md) |
 | 2026-10-04 | 002 | [Populated workspace evaluation](sessions/2026-10-04_002_populated-workspace-evaluation.md) |
-
 | 2026-10-04 | 003 | [Context recovery implementation](sessions/2026-10-04_003_context-recovery.md) |
+| 2026-10-04 | 004 | [Deep Context implementation and evaluation](sessions/2026-10-04_004_deep-context.md) |
 
 ## Detailed milestone reports
 
 - [Initial MVP implementation and validation](001_initial_mvp.md)
 - [Populated workspace evaluation](002_populated_workspace_evaluation.md)
 - [Context recovery implementation and validation](003_context_recovery.md)
+- [Deep Context implementation and cross-domain evaluation](004_deep_context.md)
 
 Milestone reports provide deeper technical detail. Session reports summarize individual work cycles and link to those details where useful.

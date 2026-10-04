@@ -196,15 +196,17 @@ def remap_backup(data: dict[str, Any]) -> dict[str, Any]:
             continue
         for row in rows:
             row["id"] = mapping[row["id"]]
-            for field in ["related_id", "record_id", "converted_id"]:
+            for field in ["related_id", "record_id", "converted_id", "parent_id"]:
                 if row.get(field) in mapping:
                     row[field] = mapping[row[field]]
+    for note in data.get("context_notes", []):
+        note["topic_ids"] = sorted(mapping[t] for t in note["topic_ids"])
     return data
 
 
 def test_import_export_roundtrip_and_conflict(client: TestClient) -> None:
     data = populated_backup(client)
-    assert data["schema_version"] == 2
+    assert data["schema_version"] == 3
     assert client.post("/api/import", json=data).status_code == 409
     assert client.get("/api/export").json() == data
     incoming = remap_backup(data)

@@ -41,14 +41,20 @@ export function SearchPage() {
             role="group"
             aria-label="Search domains"
           >
-            {["all", ...kinds].map((k) => (
+            {["all", ...kinds, "topics", "context_notes"].map((k) => (
               <button
                 className="quiet"
                 key={k}
                 aria-pressed={domain === k}
                 onClick={() => setDomain(k)}
               >
-                {k === "all" ? "All" : domains[k as keyof typeof domains].label}
+                {k === "all"
+                  ? "All"
+                  : k === "topics"
+                    ? "Topics"
+                    : k === "context_notes"
+                      ? "Context Notes"
+                      : domains[k as keyof typeof domains].label}
               </button>
             ))}
           </div>
@@ -60,13 +66,33 @@ export function SearchPage() {
           <ul className="search-results">
             {visible.map((result) => (
               <li key={`${result.kind}/${result.id}`}>
-                <Link to={`/${result.kind}/${result.id}`}>
+                <Link
+                  to={
+                    result.kind === "topics" || result.kind === "context_notes"
+                      ? `/${result.parent_type}/${result.parent_id}?${result.kind === "topics" ? "topic" : "context"}=${result.id}${result.kind === "context_notes" ? `#context-${result.id}` : ""}`
+                      : `/${result.kind}/${result.id}`
+                  }
+                >
                   <span className="eyebrow">
-                    {domains[result.kind].singular}
+                    {result.kind === "topics"
+                      ? "Topic"
+                      : result.kind === "context_notes"
+                        ? "Context Note"
+                        : domains[result.kind].singular}
                   </span>
                   <h2>
                     <Highlight text={result.title} query={query} />
                   </h2>
+                  {result.kind === "topics" && (
+                    <p>
+                      {result.parent_title} · {result.note_count ?? 0} context{" "}
+                      {result.note_count === 1 ? "note" : "notes"}
+                    </p>
+                  )}
+                  {result.kind === "context_notes" &&
+                  result.topic_names?.length ? (
+                    <p>{result.topic_names.join(" · ")}</p>
+                  ) : null}
                   {result.kind === "inbox" && (
                     <div className="entry-meta">
                       <span className="badge">

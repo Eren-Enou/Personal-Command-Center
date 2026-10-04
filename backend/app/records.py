@@ -97,6 +97,9 @@ def delete_record(session: Session, kind: str, record_id: UUID) -> None:
         note.related_id = None
         note.related_type = None
         note.updated_at = m.now()
+    from .deep_context import cleanup_parent
+
+    cleanup_parent(session, kind, record_id)
     log(session, kind, record, "deleted")
     session.delete(record)
 
