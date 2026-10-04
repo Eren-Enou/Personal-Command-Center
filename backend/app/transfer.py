@@ -14,7 +14,7 @@ def export_data(session: Session) -> s.Backup:
         kind: [serialize(row) for row in list_records(session, kind)] for kind in m.RECORD_MODELS
     }
     data.update(
-        schema_version=1,
+        schema_version=2,
         tags=[{"id": tag.id, "name": tag.name} for tag in session.scalars(select(m.Tag))],
         activity=[
             {column.name: getattr(row, column.name) for column in row.__table__.columns}
@@ -54,6 +54,16 @@ def import_data(session: Session, backup: s.Backup) -> int:
     for note in data["notes"]:
         if note["related_type"] and note["related_id"] not in ids[note["related_type"]]:
             raise HTTPException(422, "Note references a record missing from the backup")
+    # Conversion pointers, like activity, may reference deleted records.
+    if backup.schema_version == 1:
+        converted_ids = {
+            row["record_id"]
+            for row in data["activity"]
+            if row["kind"] == "inbox" and row["action"] == "converted"
+        }
+        for row in data["inbox"]:
+            if row["id"] in converted_ids:
+                row["converted"] = True
     # Activity may reference deleted records, intentionally.
     tags = {}
     for values in data["tags"]:

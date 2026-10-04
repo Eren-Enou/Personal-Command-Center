@@ -49,9 +49,18 @@ def tags(db: DB) -> list[m.Tag]:
     return list(db.scalars(select(m.Tag).order_by(m.Tag.name)))
 
 
-@app.get("/api/activity", response_model=list[s.ActivityOut])
-def activity(db: DB, limit: int = Query(default=30, ge=1, le=200)) -> list[m.Activity]:
-    return list(db.scalars(select(m.Activity).order_by(m.Activity.created_at.desc()).limit(limit)))
+@app.get("/api/activity", response_model=list[s.ActivityView])
+def activity(db: DB, limit: int = Query(default=30, ge=1, le=200)) -> list[s.ActivityView]:
+    rows = db.scalars(select(m.Activity).order_by(m.Activity.created_at.desc()).limit(limit))
+    return [
+        s.ActivityView.model_validate(
+            {
+                **{column.name: getattr(row, column.name) for column in row.__table__.columns},
+                "record_exists": db.get(m.RECORD_MODELS[row.kind], row.record_id) is not None,
+            }
+        )
+        for row in rows
+    ]
 
 
 @app.get("/api/export", response_model=s.Backup)

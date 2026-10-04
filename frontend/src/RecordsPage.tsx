@@ -65,7 +65,7 @@ function ConvertForm({
         <label>
           Title
           <input
-            autoFocus
+            data-autofocus
             required
             maxLength={300}
             value={title}
@@ -115,14 +115,28 @@ export function RecordsPage({ kind }: { kind: Kind }) {
           onChange={(e) => setFilter(e.target.value)}
         />
         {kind === "inbox" && (
-          <label className="check">
-            <input
-              type="checkbox"
-              checked={archived}
-              onChange={(e) => setArchived(e.target.checked)}
-            />
-            Show archived
-          </label>
+          <div className="mode-control" role="group" aria-label="Inbox state">
+            {[false, true].map((mode) => (
+              <button
+                key={String(mode)}
+                className="quiet"
+                aria-pressed={archived === mode}
+                onClick={() => setArchived(mode)}
+              >
+                {mode ? "Archived" : "Active"} (
+                {entries.data?.filter((e) => !!e.archived === mode).length ?? 0}
+                )
+              </button>
+            ))}
+          </div>
+        )}
+        {filter && (
+          <>
+            <span className="filter-state">Filter active: “{filter}”</span>
+            <button className="quiet" onClick={() => setFilter("")}>
+              Clear filter
+            </button>
+          </>
         )}
         <span>{visible.length} items</span>
       </div>
@@ -240,21 +254,33 @@ function RecordDetail({ kind, id }: { kind: Kind; id: string }) {
             </div>
           ))}
         {entry.related_type && entry.related_id && (
-          <div>
-            <dt>Related record</dt>
-            <dd>
-              <Link to={`/${entry.related_type}/${entry.related_id}`}>
-                Open related {domains[entry.related_type as Kind].singular} →
-              </Link>
-            </dd>
-          </div>
+          <NamedTarget
+            kind={entry.related_type as Kind}
+            id={String(entry.related_id)}
+            label={`Related ${domains[entry.related_type as Kind].singular}`}
+          />
         )}
+        {kind === "inbox" &&
+          entry.converted &&
+          (entry.converted_type && entry.converted_id ? (
+            <NamedTarget
+              kind={entry.converted_type as Kind}
+              id={String(entry.converted_id)}
+              label={`Converted to ${domains[entry.converted_type as Kind].singular}`}
+            />
+          ) : (
+            <div>
+              <dt>Converted capture</dt>
+              <dd>Destination not recorded (older conversion).</dd>
+            </div>
+          ))}
       </dl>
       {kind === "inbox" && (
         <p className="hint">
           {entry.archived ? "Archived" : "Unclassified · ready when you are"}
         </p>
       )}
+      <RelatedNotes kind={kind} id={id} />
       <div className="actions">
         {kind === "inbox" && (
           <>
@@ -319,5 +345,53 @@ function RecordDetail({ kind, id }: { kind: Kind; id: string }) {
         </Modal>
       )}
     </>
+  );
+}
+
+function NamedTarget({
+  kind,
+  id,
+  label,
+}: {
+  kind: Kind;
+  id: string;
+  label: string;
+}) {
+  const targets = useEntries(kind);
+  const target = targets.data?.find((e) => e.id === id);
+  return (
+    <div>
+      <dt>{label}</dt>
+      <dd>
+        {targets.isPending ? (
+          "Loading target…"
+        ) : targets.error ? (
+          <ErrorMessage error={targets.error} />
+        ) : target ? (
+          <Link to={`/${kind}/${id}`}>{entryTitle(target)} →</Link>
+        ) : (
+          "Referenced record is no longer available."
+        )}
+      </dd>
+    </div>
+  );
+}
+export function RelatedNotes({ kind, id }: { kind: Kind; id: string }) {
+  const notes = useEntries("notes");
+  const related =
+    notes.data?.filter((n) => n.related_type === kind && n.related_id === id) ??
+    [];
+  return (
+    <section className="related-notes">
+      <h2>Related Notes</h2>
+      <ErrorMessage error={notes.error} />
+      {notes.isPending ? (
+        <p>Loading notes…</p>
+      ) : related.length ? (
+        <EntryList kind="notes" entries={related} />
+      ) : (
+        !notes.error && <p className="hint">No linked notes yet.</p>
+      )}
+    </section>
   );
 }

@@ -75,7 +75,7 @@ export function Editor({
         {kind === "inbox" ? "Text" : "Title"}
         {kind === "inbox" ? (
           <textarea
-            autoFocus
+            data-autofocus
             required
             maxLength={100000}
             rows={6}
@@ -84,7 +84,7 @@ export function Editor({
           />
         ) : (
           <input
-            autoFocus
+            data-autofocus
             required
             maxLength={300}
             value={String(values.title)}

@@ -70,7 +70,10 @@ def update_record(
     record = get_record(session, kind, record_id)
     before = serialize(record)
     values = {
-        key: value for key, value in before.items() if key not in {"id", "created_at", "updated_at"}
+        key: value
+        for key, value in before.items()
+        if key
+        not in {"id", "created_at", "updated_at", "converted", "converted_type", "converted_id"}
     }
     values.update(changes)
     validated = s.INPUT_SCHEMAS[kind].model_validate(values).model_dump(mode="json")
@@ -115,6 +118,9 @@ def convert_inbox(session: Session, record_id: UUID, payload: s.Conversion) -> t
     result = create_record(
         session, payload.target, s.INPUT_SCHEMAS[payload.target].model_validate(values)
     )
+    source.converted = True
+    source.converted_type = payload.target
+    source.converted_id = result.id
     source.archived = True
     source.updated_at = m.now()
     log(session, "inbox", source, "converted")

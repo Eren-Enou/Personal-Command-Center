@@ -128,6 +128,9 @@ class InboxEntry(RecordColumns, Base):
     __tablename__ = "inbox"
     text: Mapped[str] = mapped_column(Text, default="")
     archived: Mapped[bool] = mapped_column(Boolean, default=False)
+    converted: Mapped[bool] = mapped_column(Boolean, default=False, server_default="0")
+    converted_type: Mapped[str | None] = mapped_column(Text, default=None)
+    converted_id: Mapped[str | None] = mapped_column(String(36), default=None)
     tags: Mapped[list[Tag]] = relationship(secondary=inbox_tags, lazy="selectin")
 
 

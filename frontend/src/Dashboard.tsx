@@ -1,8 +1,15 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
 import { request, useEntries, type Activity } from "./api";
 import { Empty, EntryList, ErrorMessage } from "./components";
-import { domains, formatDate, type Entry, type Kind } from "./domains";
+import {
+  domains,
+  formatDate,
+  humanize,
+  type Entry,
+  type Kind,
+} from "./domains";
 
 function Section({
   kind,
@@ -33,6 +40,7 @@ function Section({
   );
 }
 export function Dashboard() {
+  const [expanded, setExpanded] = useState(false);
   const projects = useEntries("projects");
   const games = useEntries("games");
   const media = useEntries("media");
@@ -78,26 +86,39 @@ export function Dashboard() {
         />
         <Section
           kind="media"
-          title="Recently added media"
-          entries={[...(media.data ?? [])].sort((a, b) =>
-            b.created_at.localeCompare(a.created_at),
-          )}
+          title="Currently reading / watching"
+          entries={media.data?.filter((e) => e.status === "in_progress") ?? []}
         />
       </div>
       <section className="timeline">
         <div className="section-heading">
           <h2>Recent activity</h2>
-          <span>Last 30 changes</span>
+          <button
+            className="quiet"
+            onClick={() => setExpanded(!expanded)}
+            aria-expanded={expanded}
+          >
+            {expanded ? "Show fewer" : "Show recent 30"}
+          </button>
         </div>
         {activity.data?.length ? (
           <ul>
-            {activity.data.map((event) => (
+            {activity.data.slice(0, expanded ? 30 : 6).map((event) => (
               <li key={event.id}>
                 <span className="activity-dot" />
                 <div>
-                  <strong>{event.title}</strong>
+                  {event.record_exists ? (
+                    <Link to={`/${event.kind}/${event.record_id}`}>
+                      <strong>{event.title}</strong>
+                    </Link>
+                  ) : (
+                    <strong>{event.title}</strong>
+                  )}
                   <span>
-                    {domains[event.kind].singular} {event.action}
+                    {humanize(domains[event.kind].singular).replace(/^./, (c) =>
+                      c.toUpperCase(),
+                    )}{" "}
+                    {event.action}
                   </span>
                 </div>
                 <time>{formatDate(event.created_at)}</time>

@@ -80,6 +80,8 @@ def test_capture_convert_preserves_text_and_tags(
     record = response.json()["record"]
     assert record[field] == text
     assert record["tags"] == ["weekend"]
+    assert client.get(url).json()["converted_type"] == target
+    assert client.get(url).json()["converted_id"] == record["id"]
     assert client.get(url).json()["archived"] is True
     assert client.get(url).json()["text"] == text
     assert (
@@ -194,7 +196,7 @@ def remap_backup(data: dict[str, Any]) -> dict[str, Any]:
             continue
         for row in rows:
             row["id"] = mapping[row["id"]]
-            for field in ["related_id", "record_id"]:
+            for field in ["related_id", "record_id", "converted_id"]:
                 if row.get(field) in mapping:
                     row[field] = mapping[row[field]]
     return data
@@ -202,7 +204,7 @@ def remap_backup(data: dict[str, Any]) -> dict[str, Any]:
 
 def test_import_export_roundtrip_and_conflict(client: TestClient) -> None:
     data = populated_backup(client)
-    assert data["schema_version"] == 1
+    assert data["schema_version"] == 2
     assert client.post("/api/import", json=data).status_code == 409
     assert client.get("/api/export").json() == data
     incoming = remap_backup(data)
@@ -236,7 +238,7 @@ def test_invalid_import_changes_nothing(client: TestClient, corruption: str) -> 
     before = populated_backup(client)
     data = remap_backup(before)
     if corruption == "version":
-        data["schema_version"] = 2
+        data["schema_version"] = 99
     if corruption == "uuid":
         data["projects"][0]["id"] = "bad"
     if corruption == "missing":

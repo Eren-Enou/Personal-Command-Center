@@ -33,10 +33,14 @@ On macOS/Linux, use `.venv/bin/python` in place of `.venv\Scripts\python`. The f
 ## First steps
 
 - Enter a thought in Quick capture and press Enter.
-- Open Inbox, select the thought, and convert it to a project, game, media item, idea, note, or utility. Conversion copies the text/tags and archives the original.
+- Open Inbox, select the thought, and convert it to a project, game, media item, idea, note, or utility. Conversion copies the text/tags, archives the original, and links the retained capture to its destination. Older conversions are labeled with an unknown destination.
+- After capture, optionally choose **Add tags to saved capture** without leaving the page. Enter still saves immediately without tags.
+- Open a record to see **Related Notes**; notes name and link their targets.
 - Create or edit domain records. Titles are required; other fields have defaults or can be empty. Tags are entered with commas, then stored as shared, normalized tags.
-- Press **Ctrl/Cmd+K** to focus search, type a phrase, and press Enter. Matching fields explain each result. Archived inbox entries remain searchable.
+- Press **Ctrl/Cmd+K** to focus search, type a phrase, and press Enter. Matching fields and highlights explain each result. Domain buttons filter the current results; Inbox hits identify Active/Archived and conversion state.
 - Press **Ctrl/Cmd+Shift+Space** to focus capture. **Escape** closes dialogs. Forms support Enter on single-line fields; use Tab to reach the submit button when editing multiline content.
+- Inbox has explicit **Active / Archived** modes with counts. Retained list filters show **Filter active** and **Clear filter**.
+- Dashboard shows current projects/games and in-progress media. Activity links return to surviving records; expand six entries to the recent 30.
 - Use Settings to export or import a JSON backup.
 
 ## Your data
@@ -51,7 +55,7 @@ $env:PCC_DATABASE_URL = "sqlite:///C:/Users/Aaron/CoderVibe/personal-command-cen
 
 Keep the servers bound to loopback: this application intentionally has no authentication.
 
-Export includes schema version 1, records, timestamps, note references, tags, and activity (including deleted-record history). Import validates the whole backup, then inserts it in one transaction. Existing record/activity IDs reject the entire import with HTTP 409; nothing is overwritten. Tag names merge, preserving existing tag IDs when names match. A tag ID already assigned to another name also rejects the import. Notes must reference records inside the backup. Unsupported versions and malformed content return HTTP 422. Import is for restoring into an empty database or adding a non-conflicting backup, not syncing or replacing data. The browser importer accepts files up to 25 MB; the API currently loads backups in memory.
+Export uses schema version 2 and includes records, conversion provenance, timestamps, note references, tags, and activity (including deleted-record history). Imports also accept version 1 backups. Import validates the whole backup, then inserts it in one transaction. Existing record/activity IDs reject the entire import with HTTP 409; nothing is overwritten. Tag names merge, preserving existing tag IDs when names match. A tag ID already assigned to another name also rejects the import. Notes must reference records inside the backup. Unsupported versions and malformed content return HTTP 422. Import is for restoring into an empty database or adding a non-conflicting backup, not syncing or replacing data. The browser importer accepts files up to 25 MB; the API currently loads backups in memory.
 
 To restore to a fresh database, select a new file with the environment variable, migrate it, start the server, then import. Keep the original file until you've verified the restore. Do not delete your database to resolve an import conflict.
 
@@ -103,4 +107,4 @@ The test starts isolated servers and a uniquely named `backend/data/e2e-*.db`, e
 
 For a production bundle preview, run `npm run build` then `npm run preview` with the backend running. The preview server proxies `/api` to the backend, as the development server does. This milestone does not package a desktop executable or a single-process server.
 
-See [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), and the [initial milestone report](docs/reports/001_initial_mvp.md).
+See [architecture](docs/architecture.md), [roadmap](docs/roadmap.md), the [work report index](docs/reports/README.md), and the [context recovery milestone report](docs/reports/003_context_recovery.md).

@@ -54,6 +54,7 @@ export interface Activity {
   record_id: string;
   title: string;
   action: string;
+  record_exists: boolean;
   created_at: string;
 }
 export interface SearchResult {
@@ -61,6 +62,9 @@ export interface SearchResult {
   kind: Kind;
   title: string;
   matches: Record<string, string>;
+  archived?: boolean | null;
+  converted?: boolean;
+  converted_type?: Kind | null;
 }
 export interface Settings {
   name: string;

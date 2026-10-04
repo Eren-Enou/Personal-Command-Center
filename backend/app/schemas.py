@@ -131,7 +131,19 @@ class InboxEntryInput(InputModel):
 
 
 class InboxEntryOut(InboxEntryInput, Metadata):
-    pass
+    converted: bool = False
+    converted_type: Literal["projects", "games", "media", "ideas", "notes", "utilities"] | None = (
+        None
+    )
+    converted_id: UUID | None = None
+
+    @model_validator(mode="after")
+    def complete_destination(self) -> "InboxEntryOut":
+        if (self.converted_type is None) != (self.converted_id is None):
+            raise ValueError("Conversion destination requires both type and ID")
+        if self.converted_type and not self.converted:
+            raise ValueError("Destination requires a converted source")
+        return self
 
 
 class UtilityInput(InputModel):
@@ -162,7 +174,7 @@ class TagOut(BaseModel):
 
 class Backup(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    schema_version: Literal[1]
+    schema_version: Literal[1, 2]
     projects: list[ProjectOut]
     games: list[GameOut]
     media: list[MediaItemOut]
@@ -185,11 +197,18 @@ class ConversionResult(BaseModel):
     record: ProjectOut | GameOut | MediaItemOut | IdeaOut | NoteOut | UtilityOut
 
 
+class ActivityView(ActivityOut):
+    record_exists: bool
+
+
 class SearchResult(BaseModel):
     kind: Kind
     id: UUID
     title: str
     matches: dict[str, str]
+    archived: bool | None = None
+    converted: bool = False
+    converted_type: Kind | None = None
 
 
 class DataInfo(BaseModel):
